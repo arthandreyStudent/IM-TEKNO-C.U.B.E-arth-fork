@@ -17,39 +17,13 @@ $department = trim($_GET['department'] ?? '');
 $qtySort = strtolower($_GET['qty_sort'] ?? 'desc') === 'asc' ? 'ASC' : 'DESC';
 
 $departments = $connection->query('SELECT DepartmentID, DepartmentName FROM Department ORDER BY DepartmentName');
-$where = ['i.QuantityAvailable > 0', "i.CurrentCondition <> 'Damaged'"];
-$params = [];
-$types = '';
-
-if ($search !== '') {
-    $where[] = '(i.AssetNumber LIKE ? OR i.ItemName LIKE ? OR i.Category LIKE ? OR d.DepartmentName LIKE ?)';
-    $like = '%' . $search . '%';
-    array_push($params, $like, $like, $like, $like);
-    $types .= 'ssss';
-}
-if ($type !== '' && in_array($type, ['Returnable', 'Reusable', 'Consumable'], true)) {
-    $where[] = 'i.ItemType = ?';
-    $params[] = $type;
-    $types .= 's';
-}
-if ($condition !== '' && in_array($condition, ['Good', 'Worn'], true)) {
-    $where[] = 'i.CurrentCondition = ?';
-    $params[] = $condition;
-    $types .= 's';
-}
-if ($department !== '') {
-    $where[] = 'i.DepartmentID = ?';
-    $params[] = $department;
-    $types .= 's';
-}
-
-$sql = 'SELECT i.*, d.DepartmentName FROM Inventory_item i JOIN Department d ON i.DepartmentID=d.DepartmentID WHERE ' . implode(' AND ', $where) . " ORDER BY i.QuantityAvailable {$qtySort}, i.ItemName ASC";
-$stmt = $connection->prepare($sql);
-if ($params) {
-    $stmt->bind_param($types, ...$params);
-}
-$stmt->execute();
-$items = $stmt->get_result();
+$items = ItemRepository::searchAvailableItems($connection, [
+    'search' => $search,
+    'type' => $type,
+    'condition' => $condition,
+    'department' => $department,
+    'qty_sort' => $qtySort,
+]);
 
 $canBorrow = ($profile['EnrollmentStatus'] === 'Officially Enrolled' && (int)$profile['HasLiability'] === 0);
 require_once ROOT_PATH . '/includes/header.php';

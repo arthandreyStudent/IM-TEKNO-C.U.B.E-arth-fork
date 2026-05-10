@@ -39,10 +39,7 @@ try {
         throw new Exception('You already have five open borrow transactions. Please request a return first.');
     }
 
-    $stmt = $connection->prepare('SELECT AssetNumber, ItemName, ItemType, CurrentCondition, QuantityAvailable FROM Inventory_item WHERE AssetNumber=? FOR UPDATE');
-    $stmt->bind_param('s', $assetNumber);
-    $stmt->execute();
-    $item = $stmt->get_result()->fetch_assoc();
+    $item = ItemRepository::findBorrowableItemForUpdate($connection, $assetNumber);
 
     if (!$item) {
         throw new Exception('The selected item does not exist.');

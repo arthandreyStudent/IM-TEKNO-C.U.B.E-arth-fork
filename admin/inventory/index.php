@@ -14,7 +14,7 @@ $sortMap = [
 ];
 $orderBy = $sortMap[$sort] ?? $sortMap['name'];
 
-$items = $connection->query("SELECT i.*, d.DepartmentName FROM Inventory_item i LEFT JOIN Department d ON i.DepartmentID=d.DepartmentID ORDER BY {$orderBy} {$dir}, i.AssetNumber ASC");
+$items = ItemRepository::listAdminInventory($connection, $orderBy, $dir);
 
 function sort_link_inventory(string $key, string $label, string $currentSort, string $currentDir): string {
     $nextDir = ($currentSort === $key && strtoupper($currentDir) === 'ASC') ? 'desc' : 'asc';

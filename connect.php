@@ -7,16 +7,61 @@ if (session_status() === PHP_SESSION_NONE) {
 
 define('ROOT_PATH', __DIR__);
 
+function load_env_file(string $path): void
+{
+    if (!is_file($path)) {
+        return;
+    }
+
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if ($lines === false) {
+        return;
+    }
+
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if ($line === '' || str_starts_with($line, '#')) {
+            continue;
+        }
+
+        [$key, $value] = array_pad(explode('=', $line, 2), 2, '');
+        $key = trim($key);
+        $value = trim($value);
+
+        if ($key === '') {
+            continue;
+        }
+
+        if ((str_starts_with($value, '"') && str_ends_with($value, '"')) || (str_starts_with($value, "'") && str_ends_with($value, "'"))) {
+            $value = substr($value, 1, -1);
+        }
+
+        $_ENV[$key] = $value;
+        putenv($key . '=' . $value);
+    }
+}
+
+function env_value(string $key, string $default = ''): string
+{
+    $value = $_ENV[$key] ?? getenv($key);
+    if ($value === false || $value === null || $value === '') {
+        return $default;
+    }
+    return (string)$value;
+}
+
+load_env_file(ROOT_PATH . '/.env');
+
 $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
 $parts = explode('/', trim($scriptName, '/'));
 $baseSegment = $parts[0] ?? '';
 $baseUrl = $baseSegment !== '' ? '/' . $baseSegment . '/' : '/';
 define('BASE_URL', $baseUrl);
 
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'tekno_cube_db');
+define('DB_HOST', env_value('DB_HOST', 'localhost'));
+define('DB_USER', env_value('DB_USER', 'root'));
+define('DB_PASS', env_value('DB_PASS', ''));
+define('DB_NAME', env_value('DB_NAME', 'tekno_cube_db'));
 
 try {
     $connection = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
@@ -175,5 +220,7 @@ function refresh_future_reservation_conflicts(mysqli $connection): int
     }
     return $flagged;
 }
+
+require_once ROOT_PATH . '/repositories/ItemRepository.php';
 
 ?>
