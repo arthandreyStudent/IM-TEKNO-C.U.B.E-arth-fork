@@ -11,6 +11,11 @@
 - **Effect:** cancelled reservations no longer count toward usable stock or future conflict checks because the shared refresh routine clears them before recalculating availability.
 - **Where it runs:** the shared cleanup is triggered from `connect.php` via `refresh_future_reservation_conflicts()` and before the instructor reservation creation page loads item availability.
 
+## Implemented Separation of Concerns Step
+- **Environment config:** database credentials now live in `.env` and are loaded by `connect.php` at runtime instead of being hard-coded in the bootstrap.
+- **Repository layer:** inventory and availability queries now flow through `repositories/ItemRepository.php` so student, instructor, and admin inventory pages reuse the same SQL logic.
+- **Scope of this step:** this is a lightweight repository extraction, not a full MVC migration yet. The router/controller split remains a next-stage refactor.
+
 ## 1. Current State Analysis
 
 ### Current Workflows

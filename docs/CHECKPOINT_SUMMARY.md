@@ -10,6 +10,10 @@
 - **Reservation expiry**: unclaimed instructor reservations are auto-cancelled 30 minutes after the scheduled start time.
 - **Availability recalculation**: `refresh_future_reservation_conflicts()` now also clears expired reservations before recalculating future stock conflicts.
 
+## Architecture Improvements In Progress
+- **Environment config**: DB credentials now come from `.env` instead of hard-coded constants in `connect.php`.
+- **Repository extraction**: item lookups and item listings now use `repositories/ItemRepository.php` across student, instructor, and admin inventory flows.
+
 ## Core Application Flows & State
 - **User Roles**: Admin (Lab Staff), Student, Instructor.
 - **Inventory Management**: CRUD available for Admin. Pre-populated for all six college departments.
