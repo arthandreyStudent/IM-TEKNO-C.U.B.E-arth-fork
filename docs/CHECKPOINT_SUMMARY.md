@@ -1,4 +1,23 @@
-# Increment 1 Checkpoint Summary
+# Increment 1 Checkpoint Summary & Architecture Overview
+
+## Project Architecture
+- **Tech Stack**: Vanilla PHP (Procedural with utility functions), MySQL (via `mysqli`), HTML, CSS, Vanilla JS.
+- **Routing**: File-based routing (e.g., `admin/dashboard.php`, `student/borrow.php`).
+- **State Management**: Native PHP sessions (`$_SESSION`) for authentication and flash messages.
+- **Security**: Prepared statements for SQL injection prevention, `password_hash`/`password_verify` for passwords, and basic role-based access control via `require_role()`.
+
+## Core Application Flows & State
+- **User Roles**: Admin (Lab Staff), Student, Instructor.
+- **Inventory Management**: CRUD available for Admin. Pre-populated for all six college departments.
+- **Borrowing Flow**: Students borrow items. When returning, they only "Request Return". The transaction is not finalized until an Admin/Lab Staff inspects the item.
+- **Inspection Flow**: Admin inspects returned items. If marked "Good" or "Worn", the transaction closes. If marked "Damaged", a `Breakage_report` is automatically created, the item is not restocked, and the student's `HasLiability` flag is set to true using the `ReplacementCost`.
+- **Reservation Flow**: Instructors can make batch reservations with specific quantities.`QuantityReserved` is updated and affects available stock.
+
+## Important AI Context & Decisions
+1. **No direct item returns**: Always route returns through Admin inspection.
+2. **Database conventions**: Use prepared statements exclusively. Rely on `connect.php` utility functions like `url()`, `h()`, `redirect()`, and `set_flash()`.
+3. **UI Rules**: Use line-style CSS icons rather than emojis. Theming uses CIT-U inspired maroon and gold classes.
+4. **Liabilities**: Handled automatically via inspection status.
 
 ## Required Items Addressed
 
