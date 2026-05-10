@@ -41,17 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $connection->begin_transaction();
 
-        $itemStmt = $connection->prepare("SELECT i.AssetNumber, i.ItemName, i.QuantityAvailable,
-                COALESCE(pending.PendingPenaltyUnits, 0) AS PendingPenaltyUnits,
-                GREATEST(i.QuantityAvailable - COALESCE(pending.PendingPenaltyUnits, 0), 0) AS UsableStock
-            FROM Inventory_item i
-            LEFT JOIN (
-                SELECT AssetNumber, SUM(QuantityMissing + QuantityDamaged) AS PendingPenaltyUnits
-                FROM Reservation_breakage_report
-                WHERE SettlementStatus = 'Pending'
-                GROUP BY AssetNumber
-            ) pending ON pending.AssetNumber = i.AssetNumber
-            WHERE i.AssetNumber=? FOR UPDATE");
         $conflictStmt = $connection->prepare("
             SELECT COALESCE(SUM(ri.QuantityReserved), 0) AS ReservedDuringSlot
             FROM Reserved_item ri
@@ -65,9 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $validatedItems = [];
         foreach ($selectedItems as $assetNumber => $quantity) {
-            $itemStmt->bind_param('s', $assetNumber);
-            $itemStmt->execute();
-            $item = $itemStmt->get_result()->fetch_assoc();
+                $item = ItemRepository::findReservationItemForUpdate($connection, $assetNumber);
 
             if (!$item) {
                 throw new Exception('One selected item was not found.');
@@ -107,30 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$where = ['i.QuantityAvailable > 0', "i.CurrentCondition <> 'Damaged'"];
-$params = [];
-$types = '';
-if ($departmentFilter !== '') {
-    $where[] = 'i.DepartmentID = ?';
-    $params[] = $departmentFilter;
-    $types = 's';
-}
-$sql = "SELECT i.*, d.DepartmentName,
-        COALESCE(pending.PendingPenaltyUnits, 0) AS PendingPenaltyUnits,
-        GREATEST(i.QuantityAvailable - COALESCE(pending.PendingPenaltyUnits, 0), 0) AS UsableStock
-    FROM Inventory_item i
-    JOIN Department d ON i.DepartmentID=d.DepartmentID
-    LEFT JOIN (
-        SELECT AssetNumber, SUM(QuantityMissing + QuantityDamaged) AS PendingPenaltyUnits
-        FROM Reservation_breakage_report
-        WHERE SettlementStatus = 'Pending'
-        GROUP BY AssetNumber
-    ) pending ON pending.AssetNumber = i.AssetNumber
-    WHERE " . implode(' AND ', $where) . " ORDER BY d.DepartmentName, i.ItemName";
-$stmt = $connection->prepare($sql);
-if ($params) { $stmt->bind_param($types, ...$params); }
-$stmt->execute();
-$items = $stmt->get_result();
+$items = ItemRepository::listReservationCandidates($connection, $departmentFilter);
 
 $itemsByDepartment = [];
 while ($row = $items->fetch_assoc()) {
@@ -197,8 +161,7 @@ require_once ROOT_PATH . '/includes/header.php';
 
             <div style="margin-top:22px;" class="stack">
                 <div class="notice-card">
-                    Enter a quantity only for items you want to reserve. The system now checks overlapping reservations for the same date and time first. 
-                    Example: if there are 40 microscopes, a Monday 40-piece reservation will not block a Tuesday 40-piece reservation, but another overlapping Monday reservation will be rejected if the remaining quantity cannot cover it.
+                    Enter only the quantities you need. The system checks overlapping reservations for the same date and time and will block requests that exceed the remaining stock.
                 </div>
 
                 <?php if (!$itemsByDepartment): ?>
