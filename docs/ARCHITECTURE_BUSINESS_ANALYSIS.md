@@ -6,6 +6,11 @@
 - **Admin return inspection flow:** locks both the borrow transaction and its linked inventory row before closing the return, so the stock update is applied against a locked record.
 - **Primary query/write references:** `student/borrow.php`, `instructor/reservation_add.php`, `admin/returns/inspect.php`, and `connect.php` for shared query helpers and stock recalculation logic.
 
+## Implemented Reservation Expiry Rule
+- **Expiry window:** unclaimed reservations are auto-cancelled 30 minutes after the scheduled start time.
+- **Effect:** cancelled reservations no longer count toward usable stock or future conflict checks because the shared refresh routine clears them before recalculating availability.
+- **Where it runs:** the shared cleanup is triggered from `connect.php` via `refresh_future_reservation_conflicts()` and before the instructor reservation creation page loads item availability.
+
 ## 1. Current State Analysis
 
 ### Current Workflows

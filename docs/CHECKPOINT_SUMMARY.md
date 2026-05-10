@@ -6,6 +6,10 @@
 - **State Management**: Native PHP sessions (`$_SESSION`) for authentication and flash messages.
 - **Security**: Prepared statements for SQL injection prevention, `password_hash`/`password_verify` for passwords, and basic role-based access control via `require_role()`.
 
+## Active Business Rules
+- **Reservation expiry**: unclaimed instructor reservations are auto-cancelled 30 minutes after the scheduled start time.
+- **Availability recalculation**: `refresh_future_reservation_conflicts()` now also clears expired reservations before recalculating future stock conflicts.
+
 ## Core Application Flows & State
 - **User Roles**: Admin (Lab Staff), Student, Instructor.
 - **Inventory Management**: CRUD available for Admin. Pre-populated for all six college departments.
