@@ -35,6 +35,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception('Please enter a quantity for at least one item.');
         }
 
+        ksort($selectedItems, SORT_STRING);
+
         $connection->begin_transaction();
 
         $itemStmt = $connection->prepare("SELECT i.AssetNumber, i.ItemName, i.QuantityAvailable,

@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $connection->begin_transaction();
 
-        $stmt = $connection->prepare("SELECT bt.TransactionNumber, bt.UserID, bt.AssetNumber, bt.TransactionStatus, i.ReplacementCost
+        $stmt = $connection->prepare("SELECT bt.TransactionNumber, bt.UserID, bt.AssetNumber, bt.TransactionStatus, i.ReplacementCost, i.CurrentCondition, i.QuantityAvailable
             FROM Borrow_transaction bt
             JOIN Inventory_item i ON bt.AssetNumber = i.AssetNumber
             WHERE bt.TransactionNumber=? FOR UPDATE");
