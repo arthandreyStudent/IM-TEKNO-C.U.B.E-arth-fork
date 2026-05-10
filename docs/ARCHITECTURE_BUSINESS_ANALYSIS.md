@@ -16,6 +16,19 @@
 - **Repository layer:** inventory and availability queries now flow through `repositories/ItemRepository.php` so student, instructor, and admin inventory pages reuse the same SQL logic.
 - **Scope of this step:** this is a lightweight repository extraction, not a full MVC migration yet. The router/controller split remains a next-stage refactor.
 
+## Implemented "Under Maintenance" Status
+- **Business Rule:** Equipment undergoes maintenance and calibration. Lab Staff can manually mark items as "Under Maintenance" without requiring a student Breakage Report.
+- **Database Schema:** `Inventory_item.CurrentCondition` ENUM now includes 'Under Maintenance' option alongside 'Good', 'Worn', and 'Damaged'.
+- **Student/Instructor Visibility:** Repository filters exclude "Under Maintenance" items from student browsing and instructor reservation availability lists.
+- **Admin Management:** Lab Staff can view all maintenance items in the admin inventory list, which displays with a 'badge-muted' visual badge for quick identification.
+- **Validation:** Explicit user-friendly error messages prevent students from borrowing and instructors from reserving maintenance items.
+- **Implementation Points:** 
+  - `repositories/ItemRepository.php`: Added "Under Maintenance" exclusion to `searchAvailableItems()` and `listReservationCandidates()` WHERE clauses.
+  - `admin/inventory/add.php` and `admin/inventory/edit.php`: Condition dropdowns now include "Under Maintenance" option.
+  - `admin/inventory/index.php`: Badge logic updated to display 'badge-muted' for maintenance status.
+  - `student/borrow.php`: Validation rejects borrowing with message "This item is currently under maintenance and cannot be borrowed."
+  - `instructor/reservation_add.php`: Validation rejects reservation with message "This item is under maintenance and cannot be reserved."
+
 ## 1. Current State Analysis
 
 ### Current Workflows

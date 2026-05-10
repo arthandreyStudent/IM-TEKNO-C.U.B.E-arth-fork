@@ -9,10 +9,12 @@
 ## Active Business Rules
 - **Reservation expiry**: unclaimed instructor reservations are auto-cancelled 30 minutes after the scheduled start time.
 - **Availability recalculation**: `refresh_future_reservation_conflicts()` now also clears expired reservations before recalculating future stock conflicts.
+- **Under Maintenance status**: items marked as "Under Maintenance" are hidden from student and instructor availability queries but remain visible to admins for management. Students and instructors receive explicit error messages if they attempt to interact with maintenance items.
 
-## Architecture Improvements In Progress
+## Architecture Improvements Completed
 - **Environment config**: DB credentials now come from `.env` instead of hard-coded constants in `connect.php`.
 - **Repository extraction**: item lookups and item listings now use `repositories/ItemRepository.php` across student, instructor, and admin inventory flows.
+- **Under Maintenance status**: equipment maintenance workflow implemented with dedicated status, admin controls, student/instructor blocking, and visual badges.
 
 ## Core Application Flows & State
 - **User Roles**: Admin (Lab Staff), Student, Instructor.
