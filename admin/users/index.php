@@ -7,7 +7,7 @@ $active = 'users';
 $sort = trim($_GET['sort'] ?? '') ?: 'created';
 $dir = strtolower(trim($_GET['dir'] ?? '')) === 'asc' ? 'ASC' : 'DESC';
 $sortMap = [
-    'name' => 'FirstName, LastName',
+    'name' => "FirstName {$dir}, LastName",
     'role' => 'UserType',
     'created' => 'CreatedAt'
 ];
@@ -17,8 +17,12 @@ $users = $connection->query("SELECT UserID, FirstName, LastName, UserType, Email
 
 function sort_link_users(string $key, string $label, string $currentSort, string $currentDir): string {
     $nextDir = ($currentSort === $key && strtoupper($currentDir) === 'ASC') ? 'desc' : 'asc';
-    $indicator = $currentSort === $key ? (strtoupper($currentDir) === 'ASC' ? ' ↑' : ' ↓') : '';
-    return '<a href="?sort=' . urlencode($key) . '&dir=' . urlencode($nextDir) . '">' . h($label . $indicator) . '</a>';
+    $indicator = $currentSort === $key
+        ? (strtoupper($currentDir) === 'ASC'
+            ? ' <span class="sort-indicator">&uarr;</span>'
+            : ' <span class="sort-indicator">&darr;</span>')
+        : '';
+    return '<a href="?sort=' . urlencode($key) . '&dir=' . urlencode($nextDir) . '">' . h($label) . $indicator . '</a>';
 }
 
 require_once ROOT_PATH . '/includes/header.php';

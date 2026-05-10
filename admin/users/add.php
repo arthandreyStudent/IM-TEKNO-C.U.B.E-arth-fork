@@ -71,7 +71,26 @@ require_once ROOT_PATH . '/includes/header.php';
                 <div><label for="first_name">First Name</label><input id="first_name" name="first_name" required value="<?= h($_POST['first_name'] ?? '') ?>"></div>
                 <div><label for="last_name">Last Name</label><input id="last_name" name="last_name" required value="<?= h($_POST['last_name'] ?? '') ?>"></div>
                 <div><label for="email">Email Address</label><input id="email" type="email" name="email" required value="<?= h($_POST['email'] ?? '') ?>"></div>
-                <div><label for="password">Temporary Password</label><input id="password" type="password" name="password" value="password123" required></div>
+                <div>
+                    <label for="password">Temporary Password</label>
+                    <div class="input-wrap">
+                        <input id="password" type="password" name="password" value="password123" required>
+                        <button type="button" class="pw-toggle" id="pw-toggle" aria-label="Toggle password visibility">
+                            <!-- Eye open (shown when password is hidden) -->
+                            <svg class="pw-icon pw-icon-show" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            <!-- Eye off (shown when password is visible) -->
+                            <svg class="pw-icon pw-icon-hide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                                <path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/>
+                                <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/>
+                                <path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/>
+                                <path d="m2 2 20 20"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
 
                 <div data-student-fields><label for="college_department">College Department</label><select id="college_department" name="college_department" data-department-select><?php render_department_options($selectedDepartment); ?></select></div>
                 <div data-student-fields><label for="course">Course</label><select id="course" name="course" data-course-select data-selected-course="<?= h($selectedCourse) ?>"><?php render_course_options($selectedDepartment, $selectedCourse); ?></select></div>
@@ -84,4 +103,20 @@ require_once ROOT_PATH . '/includes/header.php';
         </form>
     </section>
 </div>
+<script>
+(function () {
+    const toggle = document.getElementById('pw-toggle');
+    const input  = document.getElementById('password');
+    const iconShow = toggle.querySelector('.pw-icon-show');
+    const iconHide = toggle.querySelector('.pw-icon-hide');
+
+    toggle.addEventListener('click', function () {
+        const isHidden = input.type === 'password';
+        input.type      = isHidden ? 'text' : 'password';
+        iconShow.style.display = isHidden ? 'none' : '';
+        iconHide.style.display = isHidden ? ''     : 'none';
+        input.focus();
+    });
+})();
+</script>
 <?php require_once ROOT_PATH . '/includes/footer.php'; ?>

@@ -21,7 +21,7 @@ require_once ROOT_PATH . '/includes/header.php';
 <div class="layout">
     <?php require ROOT_PATH . '/admin/sidebar.php'; ?>
     <section class="content">
-        <div class="page-head"><div><h1>User Details</h1><p><?= h($record['UserID']) ?></p></div><a class="btn btn-primary" href="<?= url('admin/users/edit.php?id=' . urlencode($record['UserID'])) ?>">Edit</a></div>
+        <div class="page-head"><div><h1>User Details</h1><p><?= h($record['UserID']) ?></p></div><div style="display:flex;gap:10px;"><a class="btn btn-outline" href="<?= url('admin/users/index.php') ?>">Back to Users</a><a class="btn btn-primary" href="<?= url('admin/users/edit.php?id=' . urlencode($record['UserID'])) ?>">Edit</a></div></div>
         <div class="panel">
             <div class="form-grid">
                 <div><label>User ID</label><p><?= h($record['UserID']) ?></p></div>

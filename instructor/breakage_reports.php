@@ -81,7 +81,13 @@ require_once ROOT_PATH . '/includes/header.php';
                 </thead>
                 <tbody>
                 <?php if ($reports->num_rows === 0): ?>
-                    <tr><td class="empty" colspan="8">No breakage reports found.</td></tr>
+                    <tr><td class="empty" colspan="8">
+                        <?php if ($selectedBatch !== ''): ?>
+                            No breakage report found for batch <strong><?= h($selectedBatch) ?></strong>. Try a different batch.
+                        <?php else: ?>
+                            You have no breakage reports on record.
+                        <?php endif; ?>
+                    </td></tr>
                 <?php endif; ?>
                 <?php while ($row = $reports->fetch_assoc()): ?>
                     <?php

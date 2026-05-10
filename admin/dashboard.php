@@ -56,7 +56,7 @@ require_once ROOT_PATH . '/includes/header.php';
                 <h1>Admin Dashboard</h1>
                 <p>Manage users, inventory, student and instructor return inspections, settlements, and liability clearing from one portal.</p>
             </div>
-            <a class="btn btn-gold" href="<?= url('admin/users/add.php') ?>">Add User</a>
+            <a class="btn btn-gold" href="<?= url('admin/users/add.php') ?>">+ Add User</a>
         </div>
         <div class="kpi-grid">
             <div class="kpi"><span>Total Users</span><strong><?= $counts['users'] ?></strong></div>
@@ -92,7 +92,7 @@ require_once ROOT_PATH . '/includes/header.php';
                         <h2 style="margin-bottom: 10px;">Student Return Inspections</h2>
                         <p style="margin-bottom: 5px;">Borrowed items that students already requested to return.</p>
                     </div>
-                    <a class="btn btn-outline" style="align-self:center;" href="<?= url('admin/returns/index.php') ?>">Open</a>
+                    <a class="btn btn-outline" style="align-self:center;" href="<?= url('admin/returns/index.php') ?>">Open Student Returns Page</a>
                 </div>
                 <div class="table-wrap">
                     <table>
@@ -121,7 +121,7 @@ require_once ROOT_PATH . '/includes/header.php';
                         <h2 style="margin-bottom: 10px;">Instructor Return Requests</h2>
                         <p style="margin-bottom: 5px;">Reservation batches waiting for actual return confirmation.</p>
                     </div>
-                    <a class="btn btn-outline" style="align-self:center;" href="<?= url('admin/reservations/index.php') ?>">Open</a>
+                    <a class="btn btn-outline" style="align-self:center;" href="<?= url('admin/reservations/index.php') ?>">Open Instructor Returns Page</a>
                 </div>
                 <div class="table-wrap">
                     <table>

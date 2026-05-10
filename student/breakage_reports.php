@@ -80,7 +80,13 @@ require_once ROOT_PATH . '/includes/header.php';
                 </thead>
                 <tbody>
                 <?php if ($reports->num_rows === 0): ?>
-                    <tr><td class="empty" colspan="6">No breakage reports found.</td></tr>
+                    <tr><td class="empty" colspan="6">
+                        <?php if ($selectedReport !== ''): ?>
+                            No breakage report found for report number <strong><?= h($selectedReport) ?></strong>. Try a different report number.
+                        <?php else: ?>
+                            You have no breakage reports on record.
+                        <?php endif; ?>
+                    </td></tr>
                 <?php endif; ?>
                 <?php while ($row = $reports->fetch_assoc()): ?>
                     <?php

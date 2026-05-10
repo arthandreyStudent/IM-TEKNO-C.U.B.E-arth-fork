@@ -32,8 +32,12 @@ $requests = $connection->query("SELECT bt.TransactionNumber, bt.BorrowDateTime, 
 
 function sort_link_student_returns(string $key, string $label, string $currentSort, string $currentDir, string $statusFilter): string {
     $nextDir = ($currentSort === $key && strtoupper($currentDir) === 'ASC') ? 'desc' : 'asc';
-    $indicator = $currentSort === $key ? (strtoupper($currentDir) === 'ASC' ? ' ↑' : ' ↓') : '';
-    return '<a href="?status=' . urlencode($statusFilter) . '&sort=' . urlencode($key) . '&dir=' . urlencode($nextDir) . '">' . h($label . $indicator) . '</a>';
+    $indicator = $currentSort === $key
+        ? (strtoupper($currentDir) === 'ASC'
+            ? ' <span class="sort-indicator">&uarr;</span>'
+            : ' <span class="sort-indicator">&darr;</span>')
+        : '';
+    return '<a href="?status=' . urlencode($statusFilter) . '&sort=' . urlencode($key) . '&dir=' . urlencode($nextDir) . '">' . h($label) . $indicator . '</a>';
 }
 
 require_once ROOT_PATH . '/includes/header.php';
@@ -77,7 +81,19 @@ require_once ROOT_PATH . '/includes/header.php';
                 </thead>
                 <tbody>
                     <?php if ($requests->num_rows === 0): ?>
-                        <tr><td class="empty" colspan="7">No pending return requests.</td></tr>
+                        <tr data-live-search-empty>
+                            <td class="empty" colspan="7">
+                                <?php if ($statusFilter === 'All'): ?>
+                                    No borrow transactions on record.
+                                <?php else: ?>
+                                    No <strong><?= h($statusFilter) ?></strong> transactions found. Try a different filter.
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php else: ?>
+                        <tr data-live-search-empty style="display:none;">
+                            <td class="empty" colspan="7">No transactions match your search. Try a different keyword.</td>
+                        </tr>
                     <?php endif; ?>
                     <?php while ($row = $requests->fetch_assoc()): ?>
                         <?php

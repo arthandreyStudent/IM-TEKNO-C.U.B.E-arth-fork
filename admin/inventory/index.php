@@ -18,8 +18,12 @@ $items = ItemRepository::listAdminInventory($connection, $orderBy, $dir);
 
 function sort_link_inventory(string $key, string $label, string $currentSort, string $currentDir): string {
     $nextDir = ($currentSort === $key && strtoupper($currentDir) === 'ASC') ? 'desc' : 'asc';
-    $indicator = $currentSort === $key ? (strtoupper($currentDir) === 'ASC' ? ' ↑' : ' ↓') : '';
-    return '<a href="?sort=' . urlencode($key) . '&dir=' . urlencode($nextDir) . '">' . h($label . $indicator) . '</a>';
+    $indicator = $currentSort === $key
+        ? (strtoupper($currentDir) === 'ASC'
+            ? ' <span class="sort-indicator">&uarr;</span>'
+            : ' <span class="sort-indicator">&darr;</span>')
+        : '';
+    return '<a href="?sort=' . urlencode($key) . '&dir=' . urlencode($nextDir) . '">' . h($label) . $indicator . '</a>';
 }
 
 require_once ROOT_PATH . '/includes/header.php';
@@ -29,7 +33,7 @@ require_once ROOT_PATH . '/includes/header.php';
     <section class="content">
         <div class="page-head">
             <div><h1>Inventory Management</h1><p>Create, update, and maintain inventory item records, including their condition, quantity, and department placement.</p></div>
-            <a class="btn btn-gold" href="<?= url('admin/inventory/add.php') ?>">Add Item</a>
+            <a class="btn btn-gold" href="<?= url('admin/inventory/add.php') ?>">+ Add Item</a>
         </div>
         <div class="panel">
             <form class="form-actions" data-live-search style="justify-content:flex-start;margin-top:0;margin-bottom:14px">

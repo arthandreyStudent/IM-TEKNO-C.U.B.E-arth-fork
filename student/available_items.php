@@ -16,6 +16,8 @@ $condition = trim($_GET['condition'] ?? '');
 $department = trim($_GET['department'] ?? '');
 $qtySort = strtolower($_GET['qty_sort'] ?? 'desc') === 'asc' ? 'ASC' : 'DESC';
 
+$hasFilter = ($search !== '' || $type !== '' || $condition !== '' || $department !== '');
+
 $departments = $connection->query('SELECT DepartmentID, DepartmentName FROM Department ORDER BY DepartmentName');
 $items = ItemRepository::searchAvailableItems($connection, [
     'search' => $search,
@@ -117,7 +119,13 @@ require_once ROOT_PATH . '/includes/header.php';
                 </thead>
                 <tbody>
                     <?php if ($items->num_rows === 0): ?>
-                        <tr><td class="empty" colspan="7">No available items found.</td></tr>
+                        <tr><td class="empty" colspan="7">
+                            <?php if ($hasFilter): ?>
+                                No items match your current filters. Try adjusting or <a href="<?= url('student/available_items.php') ?>">resetting</a> them.
+                            <?php else: ?>
+                                No available items in the laboratory.
+                            <?php endif; ?>
+                        </td></tr>
                     <?php endif; ?>
                     <?php while ($row = $items->fetch_assoc()): ?>
                         <tr>
@@ -127,11 +135,14 @@ require_once ROOT_PATH . '/includes/header.php';
                                 <span class="subtle"><?= h($row['Category']) ?></span>
                             </td>
                             <td><span class="badge badge-muted"><?= h($row['ItemType']) ?></span></td>
-                            <td><span class="badge <?= $row['CurrentCondition'] === 'Good' ? 'badge-success' : 'badge-warning' ?>"><?= h($row['CurrentCondition']) ?></span></td>
+                            <?php $condBadge = $row['CurrentCondition'] === 'Good' ? 'badge-success' : ($row['CurrentCondition'] === 'Worn' ? 'badge-warning' : ($row['CurrentCondition'] === 'Under Maintenance' ? 'badge-muted' : 'badge-secondary')); ?>
+                            <td><span class="badge <?= $condBadge ?>"><?= h($row['CurrentCondition']) ?></span></td>
                             <td><?= h((string)$row['QuantityAvailable']) ?></td>
                             <td><?= h(department_code($row['DepartmentID']) . ' | ' . department_short_name($row['DepartmentID'])) ?></td>
                             <td>
-                                <?php if ($canBorrow): ?>
+                                <?php if ($row['CurrentCondition'] === 'Under Maintenance'): ?>
+                                    <button class="btn btn-small btn-outline" type="button" disabled title="Item under maintenance">Under Maintenance</button>
+                                <?php elseif ($canBorrow): ?>
                                     <form method="post" action="<?= url('student/borrow.php') ?>" onsubmit="return confirm('Borrow <?= h($row['ItemName']) ?>?');">
                                         <input type="hidden" name="asset_number" value="<?= h($row['AssetNumber']) ?>">
                                         <button class="btn btn-small btn-gold" type="submit">Borrow</button>

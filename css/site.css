@@ -202,16 +202,70 @@ main { min-height: calc(100vh - 145px); }
     white-space: nowrap;
 }
 .btn:hover { transform: translateY(-1px); }
-.btn-primary { background: var(--maroon); color: #fff; box-shadow: 0 10px 24px rgba(122,0,25,.22); }
+.btn-primary { 
+    background: var(--maroon); 
+    color: #fff; 
+    box-shadow: 0 10px 24px rgba(122,0,25,.22); 
+}
 .btn-gold {
     background: var(--gold); 
     color: var(--maroon-dark); 
     box-shadow: 0 10px 24px rgba(253,181,21,.28); 
 }
-.btn-outline { background: #fff; color: var(--maroon); border: 1px solid rgba(122,0,25,.22); }
+.btn-outline { 
+    background: #fff; 
+    color: var(--maroon);
+    padding: 13px 120px; 
+    border: 1px solid rgba(122,0,25,.22); 
+}
 .btn-danger { background: var(--danger); color: #fff; }
 .btn-small { padding: 8px 11px; border-radius: 10px; font-size: 12px; }
 .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+/* Constrain buttons in table cells and card containers */
+td .btn,
+td .btn-outline,
+.item-select-card .btn {
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+td form, 
+.item-select-card form {
+    width: 100%;
+    display: flex;
+    margin: 0;
+}
+
+td form .btn,
+td form .btn-outline,
+.item-select-card form .btn {
+    flex: 1;
+    width: 100%;
+}
+
+.form-actions .btn {
+    padding: 12px 28px; /* consistent action button sizing */
+    width: auto;
+    flex: 0 0 auto;
+}
+
+@media (max-width: 760px) {
+    .form-actions { flex-direction: column; align-items: stretch; }
+    .form-actions .btn { width: 100%; }
+}
+
+.form-grid { 
+    display: grid; 
+    grid-template-columns: repeat(2, minmax(0, 1fr)); 
+    gap: 16px 18px;
+    width: 100%;
+}
+
+.panel.filter-bar {
+    margin-bottom: 18px;
+    overflow: visible;
+}
 
 .auth-wrap {
     width: min(1240px, 96vw);
@@ -233,7 +287,7 @@ main { min-height: calc(100vh - 145px); }
 .help-text { margin-top: 6px; color: var(--muted); font-size: 12px; line-height: 1.45; }
 
 .layout {
-    width: min(1460px, 96vw);
+    width: min(1600px, 90vw);
     margin: 32px auto 48px;
     display: grid;
     grid-template-columns: 300px 1fr;
@@ -266,6 +320,12 @@ main { min-height: calc(100vh - 145px); }
 .side-links a:hover, .side-links a.active { background: var(--gold-soft); color: var(--maroon); }
 .content { min-width: 0; }
 .page-head { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 20px; }
+.page-head .btn {
+    padding: 15px 28px; /* reduce huge horizontal padding for header action buttons */
+    max-width: 320px;    /* prevent overly wide buttons */
+    white-space: nowrap;
+    margin-left: 12px;   /* add breathing space from left content */
+}
 .page-head h1 { font-size: 32px; margin: 0; color: var(--maroon-dark); }
 .page-head p { margin: 6px 0 0; color: var(--muted); }
 
@@ -288,10 +348,26 @@ table { width: 100%; border-collapse: collapse; }
 th, td { padding: 14px 13px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; background: #FFFCF5; }
 td { font-size: 14px; }
-th a { color: var(--maroon); }
+th a { color: var(--maroon); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+th a:hover { color: var(--maroon-dark); }
+.sort-indicator { display: inline-block; font-size: 11px; opacity: .75; margin-left: 2px; vertical-align: middle; }
 .actions { display: flex; gap: 8px; flex-wrap: wrap; }
-.badge { display: inline-flex; align-items: center; padding: 5px 9px; border-radius: 999px; font-size: 12px; font-weight: 900; }
-.badge-success { background: var(--success-bg); color: var(--success); }
+.badge { 
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-height: 28px; /* consistent badge height */
+    min-width: 68px;  /* ensures similar visual footprint */
+    padding: 7px 13px; /* balanced vertical/horizontal padding */
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1; /* keep text vertically centered */
+}
+.badge-success { 
+    background: var(--success-bg); 
+    color: var(--success); }
 .badge-danger { background: var(--danger-bg); color: var(--danger); }
 .badge-warning { background: var(--warning-bg); color: var(--warning); }
 .badge-muted { background: #F3F4F6; color: var(--muted); }
@@ -315,6 +391,29 @@ select { min-height: 50px; }
 option { white-space: normal; }
 textarea { min-height: 110px; resize: vertical; }
 input:focus, select:focus, textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(253,181,21,.16); }
+
+.input-wrap { position: relative; }
+.input-wrap input { padding-right: 46px; }
+.pw-toggle {
+    position: absolute;
+    right: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: auto;
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    border-radius: 6px;
+    transition: color .15s;
+}
+.pw-toggle:hover { color: var(--maroon); }
+.pw-toggle:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.pw-icon { width: 18px; height: 18px; display: block; }
+
 .form-actions {
     display: flex; 
     justify-content: flex-end; 
@@ -327,11 +426,24 @@ input:focus, select:focus, textarea:focus { border-color: var(--gold); box-shado
 .filter-bar { margin-bottom: 18px; }
 .filter-bar .form-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
 .selectable-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-.item-select-card { border: 1px solid var(--line); border-radius: 18px; background: #fff; padding: 16px; display: grid; gap: 10px; }
-.item-select-card header { display: flex; justify-content: space-between; gap: 12px; }
-.item-select-card strong { color: var(--maroon-dark); }
+.item-select-card {
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: #fff;
+    padding: 18px; /* slightly larger padding for visual breathing room */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* keeps header and actions spaced evenly */
+    gap: 12px;
+    min-height: 140px; /* uniform card height to avoid stretching neighbors */
+}
+.item-select-card header { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+.item-select-card strong { color: var(--maroon-dark); margin: 0; }
 .item-select-card small { color: var(--muted); line-height: 1.4; }
-.quantity-row { display: grid; grid-template-columns: 1fr 140px; gap: 12px; align-items: end; }
+.quantity-row { display: grid; grid-template-columns: 1fr 140px; gap: 12px; align-items: center; }
+.quantity-row label { display: block; margin-bottom: 6px; font-weight:800; color:var(--muted); }
+.quantity-row input[type="number"] { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); }
+.item-select-card .subtle { margin-top: 6px; }
 
 @keyframes slideDownFlash {
     from { transform: translate(-50%, -20px); opacity: 0; }
@@ -377,7 +489,9 @@ input:focus, select:focus, textarea:focus { border-color: var(--gold); box-shado
     .nav { display: none; position: absolute; top: 78px; left: 0; right: 0; background: var(--maroon); padding: 14px 6vw; flex-direction: column; align-items: stretch; }
     .nav.is-open { display: flex; }
     .page-head { align-items: flex-start; flex-direction: column; }
-    .quantity-row { grid-template-columns: 1fr; }
+    .quantity-row { 
+        grid-template-columns: 1fr; 
+    }
     .hero h1 { font-size: clamp(38px, 13vw, 60px); }
 }
 

@@ -63,7 +63,11 @@ $instructorReports = $connection->query("SELECT rbr.ReportNumber, rbr.DateGenera
 
 function sort_link_liab(string $key, string $label, string $currentSort, string $currentDir, string $statusFilter, string $type, string $otherSort, string $otherDir): string {
     $nextDir = ($currentSort === $key && strtoupper($currentDir) === 'ASC') ? 'desc' : 'asc';
-    $indicator = $currentSort === $key ? (strtoupper($currentDir) === 'ASC' ? ' ↑' : ' ↓') : '';
+    $indicator = $currentSort === $key
+        ? (strtoupper($currentDir) === 'ASC'
+            ? ' <span class="sort-indicator">&uarr;</span>'
+            : ' <span class="sort-indicator">&darr;</span>')
+        : '';
     $params = ['status' => $statusFilter];
     if ($type === 'student') {
         $params['sort_s'] = $key;
@@ -76,8 +80,9 @@ function sort_link_liab(string $key, string $label, string $currentSort, string 
         $params['sort_s'] = $otherSort;
         $params['dir_s'] = $otherDir;
     }
-    return '<a href="?'.http_build_query($params).'">' . h($label . $indicator) . '</a>';
+    return '<a href="?'.http_build_query($params).'">' . h($label) . $indicator . '</a>';
 }
+
 
 require_once ROOT_PATH . '/includes/header.php';
 ?>
@@ -106,6 +111,9 @@ require_once ROOT_PATH . '/includes/header.php';
 
         <div class="panel table-wrap" style="margin-bottom:20px;">
             <h2>Student Breakage Reports</h2>
+            <form class="form-actions" data-live-search style="justify-content:flex-start;margin-top:0;margin-bottom:14px;padding: 16px 16px 0;">
+                <input name="q" placeholder="Search report number, borrower, or item" style="max-width:500px; width: 100%;">
+            </form>
             <table>
                 <thead>
                     <tr>
@@ -120,8 +128,27 @@ require_once ROOT_PATH . '/includes/header.php';
                     </tr>
                 </thead>
                 <tbody>
+                <?php
+                    $studentFilterLabel = match($statusFilter) {
+                        'pending'  => 'pending',
+                        'resolved' => 'resolved',
+                        default    => null
+                    };
+                ?>
                 <?php if ($studentReports->num_rows === 0): ?>
-                    <tr><td class="empty" colspan="8">No student breakage reports found for the selected filter.</td></tr>
+                    <tr data-live-search-empty>
+                        <td class="empty" colspan="8">
+                            <?php if ($studentFilterLabel): ?>
+                                No <strong><?= h($studentFilterLabel) ?></strong> student breakage reports found. Try a different filter.
+                            <?php else: ?>
+                                No student breakage reports on record.
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php else: ?>
+                    <tr data-live-search-empty style="display:none;">
+                        <td class="empty" colspan="8">No student reports match your search. Try a different keyword.</td>
+                    </tr>
                 <?php endif; ?>
                 <?php while ($row = $studentReports->fetch_assoc()): ?>
                     <?php $reportStatus = display_settlement_status($row['SettlementStatus']); ?>
@@ -163,6 +190,9 @@ require_once ROOT_PATH . '/includes/header.php';
 
         <div class="panel table-wrap">
             <h2>Instructor Reservation Breakage Reports</h2>
+            <form class="form-actions" data-live-search style="justify-content:flex-start;margin-top:0;margin-bottom:14px;padding: 16px 16px 0;">
+                <input name="q" placeholder="Search report number, instructor, batch, or item" style="max-width:500px; width: 100%;">
+            </form>
             <table>
                 <thead>
                     <tr>
@@ -179,7 +209,19 @@ require_once ROOT_PATH . '/includes/header.php';
                 </thead>
                 <tbody>
                 <?php if ($instructorReports->num_rows === 0): ?>
-                    <tr><td class="empty" colspan="9">No instructor breakage reports found for the selected filter.</td></tr>
+                    <tr data-live-search-empty>
+                        <td class="empty" colspan="9">
+                            <?php if ($studentFilterLabel): ?>
+                                No <strong><?= h($studentFilterLabel) ?></strong> instructor breakage reports found. Try a different filter.
+                            <?php else: ?>
+                                No instructor breakage reports on record.
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php else: ?>
+                    <tr data-live-search-empty style="display:none;">
+                        <td class="empty" colspan="9">No instructor reports match your search. Try a different keyword.</td>
+                    </tr>
                 <?php endif; ?>
                 <?php while ($row = $instructorReports->fetch_assoc()): ?>
                     <?php $reportStatus = display_settlement_status($row['SettlementStatus']); ?>

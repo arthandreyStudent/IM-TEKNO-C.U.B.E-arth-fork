@@ -16,8 +16,12 @@ $departments = $connection->query("SELECT * FROM Department ORDER BY {$orderBy} 
 
 function sort_link_depts(string $key, string $label, string $currentSort, string $currentDir): string {
     $nextDir = ($currentSort === $key && strtoupper($currentDir) === 'ASC') ? 'desc' : 'asc';
-    $indicator = $currentSort === $key ? (strtoupper($currentDir) === 'ASC' ? ' ↑' : ' ↓') : '';
-    return '<a href="?sort=' . urlencode($key) . '&dir=' . urlencode($nextDir) . '">' . h($label . $indicator) . '</a>';
+    $indicator = $currentSort === $key
+        ? (strtoupper($currentDir) === 'ASC'
+            ? ' <span class="sort-indicator">&uarr;</span>'
+            : ' <span class="sort-indicator">&darr;</span>')
+        : '';
+    return '<a href="?sort=' . urlencode($key) . '&dir=' . urlencode($nextDir) . '">' . h($label) . $indicator . '</a>';
 }
 
 require_once ROOT_PATH . '/includes/header.php';

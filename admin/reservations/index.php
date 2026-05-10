@@ -40,8 +40,12 @@ $reservations = $connection->query($sql);
 
 function sort_link_inst_returns(string $key, string $label, string $currentSort, string $currentDir, string $statusFilter): string {
     $nextDir = ($currentSort === $key && strtoupper($currentDir) === 'ASC') ? 'desc' : 'asc';
-    $indicator = $currentSort === $key ? (strtoupper($currentDir) === 'ASC' ? ' ↑' : ' ↓') : '';
-    return '<a href="?status=' . urlencode($statusFilter) . '&sort=' . urlencode($key) . '&dir=' . urlencode($nextDir) . '">' . h($label . $indicator) . '</a>';
+    $indicator = $currentSort === $key
+        ? (strtoupper($currentDir) === 'ASC'
+            ? ' <span class="sort-indicator">&uarr;</span>'
+            : ' <span class="sort-indicator">&darr;</span>')
+        : '';
+    return '<a href="?status=' . urlencode($statusFilter) . '&sort=' . urlencode($key) . '&dir=' . urlencode($nextDir) . '">' . h($label) . $indicator . '</a>';
 }
 
 require_once ROOT_PATH . '/includes/header.php';
@@ -85,7 +89,21 @@ require_once ROOT_PATH . '/includes/header.php';
                 </thead>
                 <tbody>
                     <?php if ($reservations->num_rows === 0): ?>
-                        <tr><td class="empty" colspan="7">No instructor reservation batches found.</td></tr>
+                        <tr data-live-search-empty>
+                            <td class="empty" colspan="7">
+                                <?php if ($statusFilter === 'All'): ?>
+                                    No reservation batches on record.
+                                <?php elseif ($statusFilter === 'At Risk'): ?>
+                                    No <strong>At Risk</strong> batches found. All active reservations are currently clear.
+                                <?php else: ?>
+                                    No <strong><?= h($statusFilter) ?></strong> reservation batches found. Try a different filter.
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php else: ?>
+                        <tr data-live-search-empty style="display:none;">
+                            <td class="empty" colspan="7">No batches match your search. Try a different keyword.</td>
+                        </tr>
                     <?php endif; ?>
                     <?php while ($row = $reservations->fetch_assoc()): ?>
                         <?php

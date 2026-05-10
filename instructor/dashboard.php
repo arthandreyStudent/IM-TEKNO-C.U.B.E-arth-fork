@@ -54,8 +54,12 @@ $reservations = $stmt->get_result();
 function sort_link_instructor(string $key, string $label, string $currentSort, string $currentDir): string
 {
     $nextDir = ($currentSort === $key && strtoupper($currentDir) === 'ASC') ? 'desc' : 'asc';
-    $indicator = $currentSort === $key ? (strtoupper($currentDir) === 'ASC' ? ' ↑' : ' ↓') : '';
-    return '<a href="' . url('instructor/dashboard.php?' . http_build_query(['sort' => $key, 'dir' => $nextDir])) . '">' . h($label . $indicator) . '</a>';
+    $indicator = $currentSort === $key
+        ? (strtoupper($currentDir) === 'ASC'
+            ? ' <span class="sort-indicator">&uarr;</span>'
+            : ' <span class="sort-indicator">&darr;</span>')
+        : '';
+    return '<a href="' . url('instructor/dashboard.php?' . http_build_query(['sort' => $key, 'dir' => $nextDir])) . '">' . h($label) . $indicator . '</a>';
 }
 
 require_once ROOT_PATH . '/includes/header.php';
@@ -82,9 +86,10 @@ require_once ROOT_PATH . '/includes/header.php';
                 <h1>Instructor Dashboard</h1>
                 <p>View reservation batches, request returns, and review inspection status. Full damage comments are placed in Breakage Reports.</p>
             </div>
-            <a class="btn btn-gold" href="<?= url('instructor/reservation_add.php') ?>">New Reservation</a>
+            <a class="btn btn-gold" href="<?= url('instructor/reservation_add.php') ?>">+ New Reservation</a>
         </div>
         <div class="panel table-wrap">
+            <input type="text" id="batch-search" placeholder="Search batches&hellip;" style="margin-bottom:14px;width:100%;">
             <table>
                 <thead>
                     <tr>
@@ -101,8 +106,9 @@ require_once ROOT_PATH . '/includes/header.php';
                 </thead>
                 <tbody>
                     <?php if ($reservations->num_rows === 0): ?>
-                        <tr><td class="empty" colspan="9">No reservation batches yet.</td></tr>
+                        <tr><td class="empty" colspan="9">You have no reservation batches on record.</td></tr>
                     <?php endif; ?>
+                    <tr class="empty-search-row" style="display:none;"><td class="empty" colspan="9">No batches match your search. Try a different keyword.</td></tr>
                     <?php while ($row = $reservations->fetch_assoc()): ?>
                         <?php
                             $statusBadge = 'badge-warning';
@@ -177,4 +183,24 @@ require_once ROOT_PATH . '/includes/header.php';
         </div>
     </section>
 </div>
+<script>
+(function () {
+    const input = document.getElementById('batch-search');
+    if (!input) return;
+    const tbody = input.closest('.panel').querySelector('tbody');
+    const emptySearchRow = tbody.querySelector('.empty-search-row');
+
+    input.addEventListener('input', function () {
+        const q = this.value.trim().toLowerCase();
+        let visibleCount = 0;
+        tbody.querySelectorAll('tr:not(.empty-search-row)').forEach(function (row) {
+            if (row.querySelector('.empty')) return; // skip the DB empty row
+            const match = row.textContent.toLowerCase().includes(q);
+            row.style.display = match ? '' : 'none';
+            if (match) visibleCount++;
+        });
+        emptySearchRow.style.display = (q && visibleCount === 0) ? '' : 'none';
+    });
+})();
+</script>
 <?php require_once ROOT_PATH . '/includes/footer.php'; ?>

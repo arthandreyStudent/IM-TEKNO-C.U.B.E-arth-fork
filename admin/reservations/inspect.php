@@ -70,16 +70,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $batch['ReservationStatus'] === 'Re
                 $condition = 'Damaged';
             }
             if ($penaltyUnits > 0 && $comment === '') {
-                throw new Exception('Please enter an inspector comment for ' . $item['ItemName'] . ' because there are missing or damaged units.');
+                throw new Exception('Inspector comment required for ' . $item['ItemName'] . '<br>(missing or damaged units).');
             }
             if ($condition === 'Worn' && $comment === '') {
-                throw new Exception('Please enter an inspector comment for ' . $item['ItemName'] . ' when the condition is worn.');
+                throw new Exception('Inspector comment required for ' . $item['ItemName'] . '<br>(worn condition).');
             }
             if ($condition === 'Damaged' && $penaltyUnits === 0) {
                 $damaged = max(1, min($qty, 1));
                 $penaltyUnits = $damaged;
                 if ($comment === '') {
-                    throw new Exception('Please enter an inspector comment for ' . $item['ItemName'] . ' when the condition is damaged.');
+                    throw new Exception('Inspector comment required for ' . $item['ItemName'] . '<br>(damaged condition).');
                 }
             }
 
@@ -108,15 +108,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $batch['ReservationStatus'] === 'Re
         $flaggedFutureReservations = refresh_future_reservation_conflicts($connection);
 
         $connection->commit();
-        $message = 'Instructor batch inspected successfully. Missing or damaged quantities were recorded as scalable penalties. Total stock is kept unchanged, while unresolved penalty units reduce usable stock for future reservation checks.';
+        $message = 'Batch inspected. Missing/damaged units recorded.<br>Penalties created where applicable.';
         if ($flaggedFutureReservations > 0) {
-            $message .= ' ' . $flaggedFutureReservations . ' future reservation batch(es) were flagged as At Risk because current stock may no longer cover them.';
+            $message .= ' ' . $flaggedFutureReservations . ' future batch(es) flagged as at-risk.';
         }
-        set_flash('success', $message);
+        set_flash('success', $message, true);
         redirect('admin/reservations/index.php');
     } catch (Throwable $e) {
         try { $connection->rollback(); } catch (Throwable $ignored) {}
-        set_flash('danger', $e->getMessage());
+        set_flash('danger', $e->getMessage(), true);
         redirect('admin/reservations/inspect.php?id=' . urlencode($batchId));
     }
 }
@@ -152,10 +152,9 @@ require_once ROOT_PATH . '/includes/header.php';
 
         <form class="panel stack" method="post">
             <input type="hidden" name="batch_id" value="<?= h($batch['BatchID']) ?>">
-            <div class="notice-card">
-                Example: if 10 microscopes were reserved at PHP 28,000 each and only 8 are returned, the missing quantity is 2 and the penalty becomes PHP 56,000. 
-                If one of the returned units is also damaged, add that damaged quantity so the penalty scales correctly. After inspection, the system will also recheck future reservations and flag any batch that can no longer be supported by the remaining stock.
-            </div>
+            <!-- <div class="notice-card">
+                Penalties are calculated as (missing + damaged) × replacement cost. Example: 2 missing × PHP 28,000 = PHP 56,000. After inspection the system will re-evaluate and flag any future reservation batches that may be at risk.
+            </div> -->
 
             <?php while ($item = $items->fetch_assoc()): ?>
                 <?php

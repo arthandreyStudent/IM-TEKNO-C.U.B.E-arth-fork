@@ -45,6 +45,6 @@ $pageTitle = $pageTitle ?? 'TEKNO C.U.B.E.';
     </nav>
 </header>
 <?php if ($flash): ?>
-    <div class="flash flash-<?= h($flash['type']) ?>"><?= h($flash['message']) ?></div>
+    <div class="flash flash-<?= h($flash['type']) ?>"><?= !empty($flash['raw']) ? $flash['message'] : h($flash['message']) ?></div>
 <?php endif; ?>
 <main>

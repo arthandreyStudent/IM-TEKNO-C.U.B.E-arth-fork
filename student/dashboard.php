@@ -53,8 +53,12 @@ function sort_link_student(string $key, string $label, string $currentSort, stri
     $nextDir = ($currentSort === $key && strtoupper($currentDir) === 'ASC') ? 'desc' : 'asc';
     $params = ['sort' => $key, 'dir' => $nextDir];
     if ($status !== '') { $params['status'] = $status; }
-    $indicator = $currentSort === $key ? (strtoupper($currentDir) === 'ASC' ? ' ↑' : ' ↓') : '';
-    return '<a href="' . url('student/dashboard.php?' . http_build_query($params)) . '">' . h($label . $indicator) . '</a>';
+    $indicator = $currentSort === $key
+        ? (strtoupper($currentDir) === 'ASC'
+            ? ' <span class="sort-indicator">&uarr;</span>'
+            : ' <span class="sort-indicator">&darr;</span>')
+        : '';
+    return '<a href="' . url('student/dashboard.php?' . http_build_query($params)) . '">' . h($label) . $indicator . '</a>';
 }
 
 require_once ROOT_PATH . '/includes/header.php';
@@ -120,13 +124,14 @@ require_once ROOT_PATH . '/includes/header.php';
                         <option value="asc" <?= strtoupper($dir) === 'ASC' ? 'selected' : '' ?>>Oldest / Lowest First</option>
                     </select>
                 </div>
-                <div class="form-actions" style="justify-content:flex-start;margin-top:20px;">
+                <div class="form-actions">
                     <a class="btn btn-outline" href="<?= url('student/dashboard.php') ?>">Reset Filters</a>
                 </div>
             </form>
         </div>
 
         <div class="panel table-wrap">
+            <input type="text" id="txn-search" placeholder="Search transactions&hellip;" style="margin-bottom:14px;width:100%;">
             <table>
                 <thead>
                     <tr>
@@ -142,8 +147,15 @@ require_once ROOT_PATH . '/includes/header.php';
                 </thead>
                 <tbody>
                     <?php if ($transactions->num_rows === 0): ?>
-                        <tr><td class="empty" colspan="8">No borrow transactions found.</td></tr>
+                        <tr><td class="empty" colspan="8">
+                            <?php if ($status !== ''): ?>
+                                No <strong><?= h($status) ?></strong> transactions found. Try a different filter.
+                            <?php else: ?>
+                                No borrow transactions on record.
+                            <?php endif; ?>
+                        </td></tr>
                     <?php endif; ?>
+                    <tr class="empty-search-row" style="display:none;"><td class="empty" colspan="8">No transactions match your search. Try a different keyword.</td></tr>
                     <?php while ($row = $transactions->fetch_assoc()): ?>
                         <?php
                             $badge = 'badge-warning';
@@ -206,4 +218,24 @@ require_once ROOT_PATH . '/includes/header.php';
         </div>
     </section>
 </div>
+<script>
+(function () {
+    const input = document.getElementById('txn-search');
+    if (!input) return;
+    const tbody = input.closest('.panel').querySelector('tbody');
+    const emptySearchRow = tbody.querySelector('.empty-search-row');
+
+    input.addEventListener('input', function () {
+        const q = this.value.trim().toLowerCase();
+        let visibleCount = 0;
+        tbody.querySelectorAll('tr:not(.empty-search-row)').forEach(function (row) {
+            if (row.querySelector('.empty')) return; // skip the DB empty row
+            const match = row.textContent.toLowerCase().includes(q);
+            row.style.display = match ? '' : 'none';
+            if (match) visibleCount++;
+        });
+        emptySearchRow.style.display = (q && visibleCount === 0) ? '' : 'none';
+    });
+})();
+</script>
 <?php require_once ROOT_PATH . '/includes/footer.php'; ?>

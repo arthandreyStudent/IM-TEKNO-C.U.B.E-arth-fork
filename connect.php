@@ -86,9 +86,9 @@ function redirect(string $path): void
     exit;
 }
 
-function set_flash(string $type, string $message): void
+function set_flash(string $type, string $message, bool $raw = false): void
 {
-    $_SESSION['flash'] = ['type' => $type, 'message' => $message];
+    $_SESSION['flash'] = ['type' => $type, 'message' => $message, 'raw' => $raw];
 }
 
 function get_flash(): ?array

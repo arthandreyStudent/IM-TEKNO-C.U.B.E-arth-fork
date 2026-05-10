@@ -90,7 +90,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         refresh_future_reservation_conflicts($connection);
 
         $connection->commit();
-        set_flash('success', 'Reservation batch created. The system checked schedule conflicts before approving the requested quantities. Batch ID: ' . $batchId);
+        set_flash('success', 
+            'Reservation created — Batch ' . $batchId . '.' . '<br>Schedule conflicts checked. Items reserved.',
+            true
+        );
         redirect('instructor/dashboard.php');
     } catch (Throwable $e) {
         try { $connection->rollback(); } catch (Throwable $ignored) {}
@@ -126,7 +129,7 @@ require_once ROOT_PATH . '/includes/header.php';
                 <h1>Create Reservation Batch</h1>
                 <p>Select items by college department and enter the quantity to reserve. Approval is based on schedule availability.</p>
             </div>
-            <a class="btn btn-outline" href="<?= url('instructor/dashboard.php') ?>">Back</a>
+            <a class="btn btn-outline" href="<?= url('instructor/dashboard.php') ?>">Back to Reservations</a>
         </div>
 
         <div class="panel filter-bar">
@@ -183,7 +186,8 @@ require_once ROOT_PATH . '/includes/header.php';
                                             <strong><?= h($item['ItemName']) ?></strong><br>
                                             <small><?= h($item['AssetNumber']) ?> · <?= h($item['Category']) ?></small>
                                         </div>
-                                        <span class="badge <?= $item['CurrentCondition'] === 'Good' ? 'badge-success' : 'badge-warning' ?>"><?= h($item['CurrentCondition']) ?></span>
+                                        <?php $cBadge = $item['CurrentCondition'] === 'Good' ? 'badge-success' : ($item['CurrentCondition'] === 'Worn' ? 'badge-warning' : ($item['CurrentCondition'] === 'Under Maintenance' ? 'badge-muted' : 'badge-secondary')); ?>
+                                        <span class="badge <?= $cBadge ?>"><?= h($item['CurrentCondition']) ?></span>
                                     </header>
                                     <div class="quantity-row">
                                         <div>
@@ -191,7 +195,12 @@ require_once ROOT_PATH . '/includes/header.php';
                                         </div>
                                         <div>
                                             <label for="qty_<?= h($item['AssetNumber']) ?>">Quantity</label>
-                                            <input id="qty_<?= h($item['AssetNumber']) ?>" type="number" name="quantities[<?= h($item['AssetNumber']) ?>]" min="0" max="<?= h((string)$item['QuantityAvailable']) ?>" value="0">
+                                            <?php if ($item['CurrentCondition'] === 'Under Maintenance'): ?>
+                                                <input id="qty_<?= h($item['AssetNumber']) ?>" type="number" name="quantities[<?= h($item['AssetNumber']) ?>]" min="0" max="0" value="0" disabled aria-disabled="true">
+                                                <div class="subtle" style="color:#777;margin-top:6px;">Unavailable — Under Maintenance</div>
+                                            <?php else: ?>
+                                                <input id="qty_<?= h($item['AssetNumber']) ?>" type="number" name="quantities[<?= h($item['AssetNumber']) ?>]" min="0" max="<?= h((string)$item['QuantityAvailable']) ?>" value="0">
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
