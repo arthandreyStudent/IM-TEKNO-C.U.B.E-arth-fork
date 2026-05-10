@@ -54,7 +54,7 @@ require_once ROOT_PATH . '/includes/header.php';
                             <tr class="empty" data-live-search-empty style="display:none;"><td class="empty" colspan="8">No matching inventory items found.</td></tr>
                         <?php endif; ?>
                         <?php while($row=$items->fetch_assoc()): ?>
-                            <?php $badge = $row['CurrentCondition']==='Damaged' ? 'badge-danger' : ($row['CurrentCondition']==='Worn' ? 'badge-warning' : 'badge-success'); ?>
+                            <?php $badge = $row['CurrentCondition']==='Damaged' ? 'badge-danger' : ($row['CurrentCondition']==='Worn' ? 'badge-warning' : ($row['CurrentCondition']==='Under Maintenance' ? 'badge-muted' : 'badge-success')); ?>
                             <tr>
                                 <td><?= h($row['AssetNumber']) ?></td>
                                 <td><?= h($row['ItemName']) ?></td>

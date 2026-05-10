@@ -7,7 +7,7 @@ final class ItemRepository
 
     public static function searchAvailableItems(mysqli $connection, array $filters = []): mysqli_result
     {
-        $where = ['i.QuantityAvailable > 0', "i.CurrentCondition <> 'Damaged'"];
+        $where = ['i.QuantityAvailable > 0', "i.CurrentCondition <> 'Damaged'", "i.CurrentCondition <> 'Under Maintenance'"];
         $params = [];
         $types = '';
 
@@ -81,7 +81,7 @@ final class ItemRepository
 
     public static function listReservationCandidates(mysqli $connection, ?string $departmentId = null): mysqli_result
     {
-        $where = ['i.QuantityAvailable > 0', "i.CurrentCondition <> 'Damaged'"];
+        $where = ['i.QuantityAvailable > 0', "i.CurrentCondition <> 'Damaged'", "i.CurrentCondition <> 'Under Maintenance'"];
         $params = [];
         $types = '';
 

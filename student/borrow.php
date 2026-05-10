@@ -53,6 +53,10 @@ try {
         throw new Exception('Damaged items cannot be borrowed.');
     }
 
+    if ($item['CurrentCondition'] === 'Under Maintenance') {
+        throw new Exception('This item is currently under maintenance and cannot be borrowed.');
+    }
+
     $transactionNumber = app_id('TR');
     $borrowDateTime = date('Y-m-d H:i:s');
     $dueDateTime = date('Y-m-d H:i:s', strtotime('+8 hours'));

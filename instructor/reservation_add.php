@@ -60,6 +60,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception('One selected item was not found.');
             }
 
+            if ($item['CurrentCondition'] === 'Under Maintenance') {
+                throw new Exception($item['ItemName'] . ' is under maintenance and cannot be reserved.');
+            }
+
             $conflictStmt->bind_param('ssss', $assetNumber, $scheduleDate, $endTime, $startTime);
             $conflictStmt->execute();
             $reservedDuringSlot = (int)$conflictStmt->get_result()->fetch_assoc()['ReservedDuringSlot'];

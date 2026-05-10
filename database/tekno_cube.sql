@@ -49,7 +49,7 @@ CREATE TABLE Inventory_item (
     ItemName VARCHAR(100) NOT NULL,
     Category VARCHAR(50) NOT NULL,
     ItemType ENUM('Consumable','Reusable','Returnable') NOT NULL,
-    CurrentCondition ENUM('Good','Worn','Damaged') NOT NULL DEFAULT 'Good',
+    CurrentCondition ENUM('Good','Worn','Damaged','Under Maintenance') NOT NULL DEFAULT 'Good',
     ReplacementCost DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     QuantityAvailable INT NOT NULL DEFAULT 0,
     DepartmentID VARCHAR(20) NOT NULL,
