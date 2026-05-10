@@ -4,7 +4,7 @@ require_role(['Admin']);
 $pageTitle = 'Instructor Returns';
 $active = 'reservation_returns';
 $statusFilter = $_GET['status'] ?? 'Return Requested';
-$allowed = ['Reserved', 'Return Requested', 'Returned', 'At Risk', 'All'];
+$allowed = ['Reserved', 'Return Requested', 'Returned', 'Cancelled', 'At Risk', 'All'];
 if (!in_array($statusFilter, $allowed, true)) {
     $statusFilter = 'Return Requested';
 }

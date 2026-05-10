@@ -109,11 +109,25 @@ function preview_text(?string $text, int $limit = 55): string
     return strlen($text) > $limit ? substr($text, 0, $limit) . '...' : $text;
 }
 
+function expire_unclaimed_reservations(mysqli $connection, int $graceMinutes = 30): int
+{
+    $graceMinutes = max(0, (int)$graceMinutes);
+    $sql = "UPDATE Reservation_batch
+        SET ReservationStatus='Cancelled',
+            ConflictStatus='Clear',
+            ConflictNote='Auto-cancelled because it was not claimed within 30 minutes of the scheduled time.'
+        WHERE ReservationStatus='Reserved'
+          AND TIMESTAMP(ScheduleDate, StartTime) <= DATE_SUB(NOW(), INTERVAL {$graceMinutes} MINUTE)";
+    $connection->query($sql);
+    return $connection->affected_rows;
+}
+
 function refresh_future_reservation_conflicts(mysqli $connection): int
 {
     // Recalculate actionable future reservation risk after stock changes, inspections, or replenishment.
     // This first clears stale risk flags, then re-flags only future reservations that
     // cannot be supported by the current usable inventory.
+    expire_unclaimed_reservations($connection, 30);
     $connection->query("UPDATE Reservation_batch
         SET ConflictStatus='Clear', ConflictNote=NULL
         WHERE ReservationStatus IN ('Reserved','Return Requested')");

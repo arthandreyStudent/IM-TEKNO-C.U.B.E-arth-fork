@@ -6,6 +6,8 @@ $pageTitle = 'Create Reservation';
 $userId = $_SESSION['user_id'];
 $departmentFilter = trim($_GET['department'] ?? '');
 
+refresh_future_reservation_conflicts($connection);
+
 $departmentOptions = $connection->query('SELECT DepartmentID, DepartmentName FROM Department ORDER BY DepartmentName');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
